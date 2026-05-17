@@ -16,6 +16,7 @@ dns.setServers(["1.1.1.1", "8.8.8.8"]);
 // config
 dotenv.config();
 const PORT = process.env.PORT || 4000;
+const uri = process.env.MONGODB_URI
 
 
 // Initialize Express app
@@ -35,9 +36,42 @@ const client = new MongoClient(uri, {
     }
 });
 async function run() {
+    const db = client.db('autoHive')
+    const cars = db.collection('cars');
+
     try {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
+
+
+        // post one cars
+        app.post('/cars', async (req, res) => {
+            try {
+                const carsData = req.body;
+
+                const result = await cars.insertOne(carsData);
+
+                res.status(200).send({
+                    success: true,
+                    message: 'cars added successfully',
+                    data: result
+                });
+                console.log(result);
+            } catch (error) {
+
+                console.log(error);
+
+                res.status(500).send({
+                    success: false,
+                    message: 'Failed to add cars',
+                    error: error.message
+                })
+            }
+        });
+
+
+
+      
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
