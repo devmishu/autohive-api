@@ -7,7 +7,7 @@
 
 const express = require('express');
 const dotenv = require('dotenv');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 
 const dns = require("node:dns/promises");
@@ -70,8 +70,39 @@ async function run() {
         });
 
 
+        // get all cars 
+        app.get('/cars', async (req, res) => {
 
-      
+            try {
+                const carsData = await cars.find().toArray();
+                res.status(200).send({
+                    success: true,
+                    message: 'cars get successfully',
+                    data: carsData
+                });
+
+            } catch (error) {
+                console.log(error);
+                res.status(500).send({
+                    success: false,
+                    message: 'cars get failed',
+                    error: error.message
+                });
+            }
+        });
+
+
+
+        
+
+
+
+
+
+
+
+
+
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
