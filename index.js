@@ -72,6 +72,7 @@ const verifyToken = async (req, res, next) => {
 
 async function run() {
     const db = client.db('autoHive')
+
     const cars = db.collection('cars');
     const user = db.collection('user');
     const bookings = db.collection('bookings');
@@ -132,9 +133,14 @@ async function run() {
         // get cars by id
         app.get('/cars/:id', verifyToken, async (req, res) => {
             const { id } = req.params;
+            console.log("idd", id);
             const query = {
                 _id: new ObjectId(id)
             }
+
+            // const bookingCout = bookings.updateOne();
+
+
             try {
                 const carsDataByID = await cars.findOne(query);
                 res.status(200).send({
@@ -246,26 +252,16 @@ async function run() {
 
                 const bookingData = req.body;
 
+                const { carId } = bookingData;
 
-                const filter = {
-                    _id: new ObjectId(bookingData.carData._id)
-                };
-
-                const updateDoc = {
-                    $inc: {
-                        booking_count: 1
-                    }
-                };
-
-                await cars.updateOne(filter, updateDoc);
-
-
-                const updatedCar = await cars.findOne(filter);
-
-
-                bookingData.booking_count = updatedCar.booking_count;
-
+                // 1. save booking history
                 const bookingsCar = await bookings.insertOne(bookingData);
+
+                // 2. update car booking count
+                await cars.updateOne(
+                    { _id: new ObjectId(carId) },
+                    { $inc: { bookingCount: 1 } }
+                );
 
                 res.status(200).send({
                     success: true,
@@ -283,6 +279,28 @@ async function run() {
                     error: error.message
                 });
             }
+        });
+
+        app.get('/bookings', async (req, res) => {
+
+            try {
+                const bookinsData = await bookings.find().toArray();
+                res.status(200).send({
+                    success: true,
+                    message: 'Bookings car successfully',
+                    data: bookinsData
+                });
+
+            } catch (error) {
+                console.log(error);
+                res.status(500).send({
+                    success: false,
+                    message: 'Bookings cars get failed',
+                    error: error.message
+                });
+            }
+
+
         });
 
 
