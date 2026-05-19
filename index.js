@@ -111,24 +111,43 @@ async function run() {
 
         // get all cars 
         app.get('/cars', async (req, res) => {
-
             try {
-                const carsData = await cars.find().toArray();
+                const { search, type } = req.query;
+
+                let query = {};
+
+                if (search) {
+                    query.carName = {
+                        $regex: search,
+                        $options: "i",
+                    };
+                }
+
+                if (type) {
+                    query.carType = type;
+                }
+
+                const carsData = await cars.find(query).toArray(); 
+
                 res.status(200).send({
                     success: true,
-                    message: 'cars get successfully',
-                    data: carsData
+                    message: "cars get successfully",
+                    data: carsData,
                 });
 
             } catch (error) {
-                console.log(error);
                 res.status(500).send({
                     success: false,
-                    message: 'cars get failed',
-                    error: error.message
+                    message: "cars get failed",
+                    error: error.message,
                 });
             }
         });
+
+
+
+
+
 
         // get cars by id
         app.get('/cars/:id', verifyToken, async (req, res) => {
@@ -299,7 +318,6 @@ async function run() {
                     error: error.message
                 });
             }
-
 
         });
 
