@@ -96,12 +96,22 @@ async function run() {
 
         // get cars by user id 
         app.get('/my-cars/:id', async (req, res) => {
-            const userId = req.params.id;
+            try {
+                const userId = req.params.id;
 
-            const result = await cars.find({ userId }).toArray();
+                const result = await cars.find({ userId }).toArray();
 
-            res.send(result)
-            console.log(userId);
+                res.status(200).send({
+                    success: true,
+                    data: result
+                });
+
+            } catch (error) {
+                res.status(500).send({
+                    success: false,
+                    message: error.message
+                });
+            }
         });
 
 
