@@ -107,7 +107,7 @@ async function run() {
 
 
         // get all cars 
-        app.get('/cars', verifyToken, async (req, res) => {
+        app.get('/cars',  async (req, res) => {
 
             try {
                 const carsData = await cars.find().toArray();
