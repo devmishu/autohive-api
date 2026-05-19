@@ -172,6 +172,7 @@ async function run() {
             }
         });
 
+        // delee my added cars
         app.delete('/my-cars/:id', async (req, res) => {
 
             const { id } = req.params;
@@ -203,13 +204,40 @@ async function run() {
             }
         });
 
+        // edit my added cars
+        app.patch('/cars/:id', async (req, res) => {
+
+            const data = req.body;
+            const { id } = req.params;
+            const query = {
+                _id: new ObjectId(id)
+            }
+            const document = {
+                $set: data
+            }
+
+            try {
+                const editedcars = await cars.updateOne(query, document);
+                res.status(200).send({
+                    success: true,
+                    message: 'Edit cars successfully',
+                    data: editedcars
+                });
+            } catch (error) {
+                console.log(error);
+                res.status(500).send({
+                    success: false,
+                    message: 'Edit cars  failed',
+                    error: error.message
+                });
+            }
+        });
 
 
 
 
 
-
-
+        
         // Send a ping to confirm a successful connection
         // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
