@@ -74,6 +74,8 @@ async function run() {
     const db = client.db('autoHive')
     const cars = db.collection('cars');
     const user = db.collection('user');
+    const bookings = db.collection('bookings');
+
 
     try {
         // Connect the client to the server	(optional starting in v4.7)
@@ -237,7 +239,54 @@ async function run() {
 
 
 
-        
+        //  car bokings  
+        app.post('/bookings', async (req, res) => {
+
+            try {
+
+                const bookingData = req.body;
+
+
+                const filter = {
+                    _id: new ObjectId(bookingData.carData._id)
+                };
+
+                const updateDoc = {
+                    $inc: {
+                        booking_count: 1
+                    }
+                };
+
+                await cars.updateOne(filter, updateDoc);
+
+
+                const updatedCar = await cars.findOne(filter);
+
+
+                bookingData.booking_count = updatedCar.booking_count;
+
+                const bookingsCar = await bookings.insertOne(bookingData);
+
+                res.status(200).send({
+                    success: true,
+                    message: 'Booking car successfully',
+                    data: bookingsCar
+                });
+
+            } catch (error) {
+
+                console.log(error);
+
+                res.status(500).send({
+                    success: false,
+                    message: 'Booking car failed',
+                    error: error.message
+                });
+            }
+        });
+
+
+
         // Send a ping to confirm a successful connection
         // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
