@@ -107,7 +107,7 @@ async function run() {
 
 
         // get all cars 
-        app.get('/cars',  async (req, res) => {
+        app.get('/cars', async (req, res) => {
 
             try {
                 const carsData = await cars.find().toArray();
@@ -168,6 +168,37 @@ async function run() {
                 res.status(500).send({
                     success: false,
                     message: error.message
+                });
+            }
+        });
+
+        app.delete('/my-cars/:id', async (req, res) => {
+
+            const { id } = req.params;
+
+            const query = {
+                _id: new ObjectId(id)
+            }
+
+            try {
+
+                const deletedcars = await cars.deleteOne(query);
+
+                console.log(deletedcars);
+
+                res.status(200).send({
+                    success: true,
+                    message: 'Delete cars successfully',
+                    data: deletedcars
+                });
+
+            } catch (error) {
+
+                console.log(error);
+                res.status(500).send({
+                    success: false,
+                    message: 'Delete cars  failed',
+                    error: error.message
                 });
             }
         });
