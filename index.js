@@ -11,6 +11,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
+const { createRemoteJWKSet, jwtVerify } = require("jose-cjs");
 
 const dns = require("node:dns/promises");
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
@@ -37,6 +38,38 @@ const client = new MongoClient(uri, {
         deprecationErrors: true,
     }
 });
+
+const JWKS = createRemoteJWKSet(
+    new URL(`${process.env.CLIENT_URL}/api/auth/jwks`)
+);
+
+const verifyToken = async (req, res, next) => {
+    const headers = req?.headers?.authorization;
+    if (!headers) {
+        return res.status(401).send({ message: 'Unauthorize' })
+    }
+
+    const token = headers?.split(" ")[1]
+
+
+    if (!token) {
+        return res.status(401).send({ message: 'Unauthorize' })
+    }
+
+
+    try {
+
+        const { payload } = await jwtVerify(token, JWKS);
+        console.log(payload);
+        next();
+    } catch (error) {
+        return console.error('Token validation failed:', error);
+    }
+
+
+
+}
+
 async function run() {
     const db = client.db('autoHive')
     const cars = db.collection('cars');
@@ -44,7 +77,7 @@ async function run() {
 
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
 
         // post one cars
@@ -74,7 +107,7 @@ async function run() {
 
 
         // get all cars 
-        app.get('/cars', async (req, res) => {
+        app.get('/cars', verifyToken, async (req, res) => {
 
             try {
                 const carsData = await cars.find().toArray();
@@ -94,8 +127,33 @@ async function run() {
             }
         });
 
+        // get cars by id
+        app.get('/cars/:id', verifyToken, async (req, res) => {
+            const { id } = req.params;
+            const query = {
+                _id: new ObjectId(id)
+            }
+            try {
+                const carsDataByID = await cars.findOne(query);
+                res.status(200).send({
+                    success: true,
+                    message: 'Single cars get successfully',
+                    data: carsDataByID
+                });
+
+            } catch (error) {
+                console.log(error);
+                res.status(500).send({
+                    success: false,
+                    message: 'Single cars get failed',
+                    error: error.message
+                });
+            }
+        });
+
+
         // get cars by user id 
-        app.get('/my-cars/:id', async (req, res) => {
+        app.get('/my-cars/:id', verifyToken, async (req, res) => {
             try {
                 const userId = req.params.id;
 
@@ -122,7 +180,7 @@ async function run() {
 
 
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
