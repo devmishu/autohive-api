@@ -127,7 +127,7 @@ async function run() {
                     query.carType = type;
                 }
 
-                const carsData = await cars.find(query).toArray(); 
+                const carsData = await cars.find(query).toArray();
 
                 res.status(200).send({
                     success: true,
@@ -139,6 +139,31 @@ async function run() {
                 res.status(500).send({
                     success: false,
                     message: "cars get failed",
+                    error: error.message,
+                });
+            }
+        });
+
+
+        // get abileable cars 
+        app.get('/available-cars', async (req, res) => {
+            try {
+
+                const availableCars = await cars.find({
+                    availabilityStatus: "available"
+                }).limit(6).toArray();
+
+                res.status(200).send({
+                    success: true,
+                    message: "available cars get successfully",
+                    data: availableCars,
+                });
+
+            } catch (error) {
+
+                res.status(500).send({
+                    success: false,
+                    message: "available cars get failed",
                     error: error.message,
                 });
             }
