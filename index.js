@@ -84,7 +84,7 @@ async function run() {
 
 
         // post one cars
-        app.post('/cars', async (req, res) => {
+        app.post('/cars', verifyToken, async (req, res) => {
             try {
                 const carsData = req.body;
 
@@ -175,7 +175,7 @@ async function run() {
 
 
         // get cars by id
-        app.get('/cars/:id', verifyToken, async (req, res) => {
+        app.get('/cars/:id', verifyToken, async (req, res) => { 
             const { id } = req.params;
             console.log("idd", id);
             const query = {
@@ -325,7 +325,7 @@ async function run() {
             }
         });
 
-        app.get('/bookings', async (req, res) => {
+        app.get('/bookings',verifyToken, async (req, res) => {
 
             try {
                 const bookinsData = await bookings.find().toArray();
