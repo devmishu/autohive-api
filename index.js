@@ -327,6 +327,8 @@ async function run() {
 
         app.get('/bookings', verifyToken, async (req, res) => {
 
+            
+
             try {
                 const bookinsData = await bookings.find().toArray();
                 res.status(200).send({
