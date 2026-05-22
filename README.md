@@ -8,7 +8,7 @@ A secure and scalable REST API for the Auto Hive car rental application. Built w
 # 🔗 Live API URL
 
 ```bash
-https://your-api-url.vercel.app
+https://your-api-url.vercel.ap](https://autohive-api.vercel.app
 ```
 
 
