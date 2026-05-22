@@ -182,7 +182,6 @@ async function run() {
                 _id: new ObjectId(id)
             }
 
-            // const bookingCout = bookings.updateOne();
 
 
             try {
@@ -224,7 +223,7 @@ async function run() {
             }
         });
 
-        // delee my added cars
+        
         app.delete('/my-cars/:id', verifyToken, async (req, res) => {
 
             const { id } = req.params;
@@ -298,10 +297,10 @@ async function run() {
 
                 const { carId } = bookingData;
 
-                // 1. save booking history
+              
                 const bookingsCar = await bookings.insertOne(bookingData);
 
-                // 2. update car booking count
+                
                 await cars.updateOne(
                     { _id: new ObjectId(carId) },
                     { $inc: { bookingCount: 1 } }
