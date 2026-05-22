@@ -325,12 +325,17 @@ async function run() {
             }
         });
 
-        app.get('/bookings', verifyToken, async (req, res) => {
 
-            
+
+        app.get('/bookings/:userId', verifyToken, async (req, res) => { 
+
+            const userId = req?.params.userId;
+            const query = {
+                userId: userId
+            }
 
             try {
-                const bookinsData = await bookings.find().toArray();
+                const bookinsData = await bookings.find(query).toArray();
                 res.status(200).send({
                     success: true,
                     message: 'Bookings car successfully',
@@ -371,4 +376,4 @@ app.get('/', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`app lisen in ${PORT}`);
-})
+}) 
